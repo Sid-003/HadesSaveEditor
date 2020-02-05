@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SimpleDecoder
 {
-    class HadesSaveEditor
+    public class HadesSaveEditor
     {
         private readonly BinaryLoadData _binaryLoadData;
 

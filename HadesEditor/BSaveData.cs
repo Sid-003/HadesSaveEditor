@@ -5,7 +5,7 @@ using System.Text;
 using GSGE.Code.Helpers;
 using Microsoft.Xna.Framework;
 
-namespace SimpleDecoder
+namespace HadesEditor
 {
 
     // ripped from in-game code using dnSpy with a slight modification.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleDecoder
+namespace HadesEditor.UI
 {
     class Program
     {
@@ -10,7 +10,7 @@ namespace SimpleDecoder
             var saveEditor = new HadesSaveEditor(@"Profile1.sav");
             saveEditor.LoadFile();
             saveEditor.EditFile("GameState.Resources.SuperLockKeys", 69.0);
-            saveEditor.SaveFile("editedfile.sav");
+            saveEditor.SaveFile("Profile1.sav");
             Console.Read();
         }
 
