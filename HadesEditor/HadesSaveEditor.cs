@@ -72,17 +72,24 @@ namespace SimpleDecoder
 
         public void EditFile<T>(string property, T value)
         {
-            var keys = property.Split('.').ToList();
+            var keys = property.Split('.');
 
             //always one element least in the current version (long winter update)
             var saveDict = _saveFile.LuaState[0] as Dictionary<object, object>;
-      
-            foreach (var key in keys)
+
+            for (int i = 0; i < keys.Length; i++)
             {
-                if(saveDict[key] is Dictionary<object, object> dict)
-                    saveDict = dict;
+                if (saveDict[keys[i]] is Dictionary<object, object> dict)
+                {
+                    if (i == keys.Length - 1)
+                        saveDict[keys[i]] = value;
+                    else
+                        saveDict = dict;
+                }
                 else
-                    saveDict[key] = value;
+                {
+                    saveDict[keys[i]] = value;
+                }
             }
             
         }
