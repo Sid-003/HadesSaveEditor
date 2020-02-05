@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SimpleDecoder
+namespace HadesEditor
 {
     // Lua simple Encoder/Decoder
     // Adapted (more like stole) from https://github.com/zsennenga/luabins_py

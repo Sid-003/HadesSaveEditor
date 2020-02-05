@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SimpleDecoder
+namespace HadesEditor
 {
     public class HadesSaveEditor
     {
