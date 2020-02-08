@@ -45,7 +45,6 @@ namespace HadesEditor
             _luaEncoder = new LuaEncoder(new MemoryStream(rawLuaBytes));
              var luaState = _luaEncoder.Decode();
             _saveFile.LuaState = luaState;
-            Console.WriteLine("Sucessfully loaded file.");
         }
 
 
@@ -70,7 +69,7 @@ namespace HadesEditor
             File.WriteAllBytes(path, ms.ToArray());
         }
 
-        public void EditFile<T>(string property, T value)
+        public void EditFile<T>(string property, Func<T, T> modify)
         {
             var keys = property.Split('.');
 
@@ -79,16 +78,19 @@ namespace HadesEditor
 
             for (int i = 0; i < keys.Length; i++)
             {
-                if (saveDict[keys[i]] is Dictionary<object, object> dict)
+                if (saveDict[keys[i]] is T value && i == keys.Length - 1)
                 {
-                    if (i == keys.Length - 1)
-                        saveDict[keys[i]] = value;
+                    if (typeof(T).IsValueType)
+                        saveDict[keys[i]] = modify(value);
                     else
-                        saveDict = dict;
+                        _ = modify(value);
                 }
                 else
                 {
-                    saveDict[keys[i]] = value;
+                    if (saveDict[keys[i]] is Dictionary<object, object> dict)
+                        saveDict = dict;
+                    else
+                        throw new Exception("much confusion, prolly bad code");
                 }
             }
             
