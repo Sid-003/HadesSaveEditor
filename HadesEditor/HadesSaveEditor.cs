@@ -1,4 +1,5 @@
 ﻿using GSGE.Code.Helpers.Serialization;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -67,33 +68,23 @@ namespace HadesEditor
             var ms = new MemoryStream();
             bs.toStream(ms);
             File.WriteAllBytes(path, ms.ToArray());
+
+            File.WriteAllText("yeet.txt", _saveFile.LuaState.ToString());
         }
 
-        public void EditFile<T>(string property, Func<T, T> modify)
+        public void EditFile<T>(string property, Action<JValue> modify)
         {
             var keys = property.Split('.');
 
             //always one element least in the current version (long winter update)
-            var saveDict = _saveFile.LuaState[0] as Dictionary<object, object>;
+            var saveDict = _saveFile.LuaState[0];
 
             for (int i = 0; i < keys.Length; i++)
             {
-                if (saveDict[keys[i]] is T value && i == keys.Length - 1)
-                {
-                    if (typeof(T).IsValueType)
-                        saveDict[keys[i]] = modify(value);
-                    else
-                        _ = modify(value);
-                }
-                else
-                {
-                    if (saveDict[keys[i]] is Dictionary<object, object> dict)
-                        saveDict = dict;
-                    else
-                        throw new Exception("much confusion, prolly bad code");
-                }
+                saveDict = saveDict[keys[i]];
             }
-            
+
+            modify(saveDict as JValue);
         }
 
 

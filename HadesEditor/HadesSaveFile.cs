@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,7 +27,7 @@ namespace HadesEditor
 
         public string NextMap { get; internal set; }
 
-        public List<object> LuaState { get; internal set; }
+        public JArray LuaState { get; internal set; }
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace HadesEditor
         }
 
 
-        public byte[] Encode(List<object> values)
+        public byte[] Encode(JArray values)
         {
             using var ms = new MemoryStream();
             _luaBinWriter = new BinaryWriter(ms);
@@ -40,65 +41,66 @@ namespace HadesEditor
             return ms.ToArray();
         }
 
-        public List<object> Decode()
+        public JArray Decode()
         {
-            var list = new List<object>();
+            var list = new JArray();
             int n = _luaBinStream.ReadByte();
             for (int i = 0; i < n; i++)
                 list.Add(LoadValue());
             return list;
         }
 
-        public void SaveValue(object value)
+        public void SaveValue(JToken value)
         {
-            switch (value)
+            switch (value.Type)
             {
-                case Dictionary<object, object> dict:
+                case JTokenType.Object:
                     _luaBinWriter.Write(LUABINS_TABLE);
-                    WriteTable(dict);
+                    WriteTable(value.ToObject<JObject>());
                     return;
-                case double d:
+                case JTokenType.Float:
                     _luaBinWriter.Write(LUABINS_NUMBER);
-                    _luaBinWriter.Write(d);
+                    _luaBinWriter.Write(value.ToObject<double>());
                     return;
-                case string s:
+                case JTokenType.String:
                     _luaBinWriter.Write(LUABINS_STRING);
+                    var s = value.ToObject<string>();
                     _luaBinWriter.Write(s.Length);
                     _luaBinWriter.Write(Encoding.ASCII.GetBytes(s));
                     return;
-                case null:
+                case JTokenType.Null:
                     _luaBinWriter.Write(LUABINS_NIL);
                     return;
-                case true:
-                    _luaBinWriter.Write(LUABINS_TRUE);
-                    return;
-                case false:
-                    _luaBinWriter.Write(LUABINS_FALSE);
+                case JTokenType.Boolean:
+                    if(value.ToObject<bool>())
+                        _luaBinWriter.Write(LUABINS_TRUE);
+                    else
+                        _luaBinWriter.Write(LUABINS_FALSE);
                     return;
             };
         }
 
 
-        public object LoadValue()
+        public JToken LoadValue()
         {
             byte type = _luaBinStream.ReadByte();
 
             return type switch
             {
-                LUABINS_TRUE => true,
-                LUABINS_FALSE => false,
+                LUABINS_TRUE => new JValue(true),
+                LUABINS_FALSE => new JValue(false),
                 LUABINS_NIL => null,
-                LUABINS_NUMBER => _luaBinStream.ReadDouble(),
-                LUABINS_STRING  => Encoding.ASCII.GetString(_luaBinStream.ReadBytes(_luaBinStream.ReadInt32())),
+                LUABINS_NUMBER => new JValue(_luaBinStream.ReadDouble()),
+                LUABINS_STRING  => new JValue(Encoding.ASCII.GetString(_luaBinStream.ReadBytes(_luaBinStream.ReadInt32()))),
                 LUABINS_TABLE => ReadTable(),
                 _ => throw new ArgumentException("bruh")
             };
         }
 
 
-        private Dictionary<object, object> ReadTable()
+        private JObject ReadTable()
         {
-            var dict = new Dictionary<object, object>();
+            var dict = new JObject();
 
             int arrSize = _luaBinStream.ReadInt32();
             int hashSize = _luaBinStream.ReadInt32();
@@ -109,14 +111,14 @@ namespace HadesEditor
             {
                 var key = LoadValue();
                 var val = LoadValue();
-                dict[key] = val;
+                dict[key.ToObject<string>()] = val;
             }
             return dict;
         }
 
-        private void WriteTable(Dictionary<object, object> table)
+        private void WriteTable(JObject table)
         {
-            var arraySize = table.Count(x => x.Key is int);
+            var arraySize = table.Children().Count(x => x.Type == JTokenType.Integer);
             var hashSize = table.Count - arraySize;
 
             _luaBinWriter.Write(arraySize);
@@ -124,7 +126,10 @@ namespace HadesEditor
 
             foreach (var (k, v) in table)
             {
-                SaveValue(k);
+                if (double.TryParse(k, out double res))
+                    SaveValue(res);
+                else
+                    SaveValue(k);
                 SaveValue(v);
             }     
         }
