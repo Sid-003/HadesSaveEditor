@@ -1,4 +1,7 @@
-﻿using System;
+﻿using HadesEditor.Linq;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace HadesEditor.UI
 {
@@ -9,8 +12,17 @@ namespace HadesEditor.UI
         {
             var saveEditor = new HadesSaveEditor(@"Profile1.sav");
             saveEditor.LoadFile();
-            saveEditor.EditFile("GameState.Resources.SuperLockKeys", 69.0);
+            Console.WriteLine("loaaded file");
+            saveEditor.EditFile<LuaValue>("GameState.Resources.SuperLockKeys", x => 
+            {
+                x.Value = 420.0;
+            });
+            saveEditor.EditFile<LuaTable>("GameState.WeaponUnlocks", x =>
+            {
+                x.Remove("GunWeapon");
+            });
             saveEditor.SaveFile("Profile1.sav");
+            Console.WriteLine("saved file");
             Console.Read();
         }
 

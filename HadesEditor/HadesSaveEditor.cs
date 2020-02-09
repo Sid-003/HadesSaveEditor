@@ -1,4 +1,5 @@
 ﻿using GSGE.Code.Helpers.Serialization;
+using HadesEditor.Linq;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -72,19 +73,19 @@ namespace HadesEditor
             File.WriteAllText("yeet.txt", _saveFile.LuaState.ToString());
         }
 
-        public void EditFile<T>(string property, Action<JValue> modify)
+        public void EditFile<T>(string property, Action<T> modify) where T : LuaToken
         {
             var keys = property.Split('.');
 
             //always one element least in the current version (long winter update)
-            var saveDict = _saveFile.LuaState[0];
+            LuaToken val = _saveFile.LuaState[0];
 
             for (int i = 0; i < keys.Length; i++)
             {
-                saveDict = saveDict[keys[i]];
+                val = val[keys[i]];
             }
 
-            modify(saveDict as JValue);
+            modify(val as T);
         }
 
 
