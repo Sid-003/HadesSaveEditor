@@ -12,6 +12,8 @@ namespace HadesEditor
 
         public string Location { get; internal set;}
 
+        public DateTime Timestamp { get; internal set; }
+
         public int CompletedRuns { get; internal set;}
 
         public int ActiveMetaPoints { get; internal set; }

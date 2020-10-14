@@ -1,11 +1,7 @@
-﻿using GSGE.Code.Helpers.Serialization;
-using HadesEditor.Linq;
-using Newtonsoft.Json.Linq;
+﻿using HadesEditor.Linq;
+using LZ4;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace HadesEditor
 {
@@ -22,6 +18,7 @@ namespace HadesEditor
             if (!File.Exists(filePath))
                 throw new FileNotFoundException("The file " + filePath + " does not exist.");
 
+
             _binaryLoadData = new BinaryLoadData(true);
             using var fs = File.OpenRead(filePath);
             _binaryLoadData.fromStream(fs);
@@ -33,6 +30,7 @@ namespace HadesEditor
             _saveFile = new HadesSaveFile()
             {
                  Version = _binaryLoadData.loadInt(),
+                 Timestamp = new DateTime(_binaryLoadData.loadLong()),
                  Location = _binaryLoadData.loadString(),
                  CompletedRuns = _binaryLoadData.loadInt(),
                  ActiveMetaPoints= _binaryLoadData.loadInt(), 
@@ -43,7 +41,12 @@ namespace HadesEditor
                  CurrentMap = _binaryLoadData.loadString(),
                  NextMap = _binaryLoadData.loadString(),                 
             };
+
             var rawLuaBytes = _binaryLoadData.loadLuaString();
+
+
+            var lmao = LZ4Codec.Decode(rawLuaBytes, 0, rawLuaBytes.Length, 9388032);
+            
             _luaEncoder = new LuaEncoder(new MemoryStream(rawLuaBytes));
              var luaState = _luaEncoder.Decode();
             _saveFile.LuaState = luaState;
@@ -52,8 +55,9 @@ namespace HadesEditor
 
         public void SaveFile(string path)
         {
-            var bs = new BSaveData(3145728, true);
+            var bs = new BSaveData(3145736, true);
             bs.saveInt(_saveFile.Version);
+            bs.saveLong(_saveFile.Timestamp.ToBinary());
             bs.saveString(_saveFile.Location);
             bs.saveInt(_saveFile.CompletedRuns);
             bs.saveInt(_saveFile.ActiveMetaPoints);

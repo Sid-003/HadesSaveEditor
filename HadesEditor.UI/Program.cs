@@ -10,7 +10,7 @@ namespace HadesEditor.UI
 
         static void Main(string[] args)
         {
-            var saveEditor = new HadesSaveEditor(@"Profile1.sav");
+            var saveEditor = new HadesSaveEditor(@"C:\Users\Simran\Documents\haades backup\Profile1.sav");
             saveEditor.LoadFile();
             Console.WriteLine("loaaded file");
             saveEditor.EditFile<LuaValue>("GameState.Resources.SuperLockKeys", x => 

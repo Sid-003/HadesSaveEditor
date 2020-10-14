@@ -13,13 +13,13 @@ namespace HadesEditor
 
     public class LuaEncoder : IDisposable
     {
-        const byte LUABINS_NIL = 0x2D;
-        const byte LUABINS_FALSE = 0x30;
-        const byte LUABINS_TRUE = 0x31;
-        const byte LUABINS_NUMBER = 0x4E;
-        const byte LUABINS_STRING = 0x53;
-        const byte LUABINS_TABLE = 0x54;
-        private BinaryReader _luaBinStream;
+        private const byte LUABINS_NIL = 0x2D;
+        private const byte LUABINS_FALSE = 0x30;
+        private const byte LUABINS_TRUE = 0x31;
+        private const byte LUABINS_NUMBER = 0x4E;
+        private const byte LUABINS_STRING = 0x53;
+        private const byte LUABINS_TABLE = 0x54;
+        private readonly BinaryReader _luaBinStream;
         private BinaryWriter _luaBinWriter;
 
 

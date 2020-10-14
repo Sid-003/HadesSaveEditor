@@ -9,7 +9,7 @@ namespace HadesEditor.Linq
     [DebuggerDisplay("(LuaTable, Count = {Count})")]
     public class LuaTable : LuaToken, IEnumerable<KeyValuePair<LuaValue, LuaToken>>
     {
-        private Dictionary<LuaValue, LuaToken> _backingDict;
+        private readonly Dictionary<LuaValue, LuaToken> _backingDict;
 
         public override LuaTokenType TokenType => LuaTokenType.Table;
 
@@ -35,19 +35,8 @@ namespace HadesEditor.Linq
 
         public override LuaToken this[LuaValue key]
         {
-            get 
-            {
-                return _backingDict[key];
-            }
-            set
-            {
-                if (!_backingDict.ContainsKey(key))
-                    _backingDict.Add(key, value);
-                else
-                {
-                    _backingDict[key] = value;
-                }
-            }
+            get => _backingDict[key];
+            set => _backingDict[key] = value;           
         }
     }
 }
